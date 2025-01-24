@@ -1,17 +1,15 @@
 import express, { Express } from "express"
-
+import { config } from "dotenv"
+import  cors  from "cors"
 
 const app: Express = express()
 
 
 
-
-
-
-
-
-
-
+config();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 
 
