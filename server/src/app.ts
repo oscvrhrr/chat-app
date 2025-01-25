@@ -11,6 +11,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+app.post("/auth/login", (req, res) => {
+  console.log("this is the login route")
+})
+
+app.post("/auth/signup", (req, res) => {
+  console.log("this is the signup rout")
+})
+
 
 
 

@@ -1,31 +1,48 @@
 import passport from "passport"
 import bcrypt from "bcryptjs"
-import LocalStrategy from "passport-local"
-import { Strategy } from "passport-jwt"
+import prisma from "../db/queries.js"
+import { Strategy as LocalStrategy } from "passport-local"
+import { Strategy as JwtStrategy } from "passport-jwt"
 import { ExtractJwt } from "passport-jwt"
 
-opts = {
+const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET
+  secretOrKey: process.env.JWT_SECRET || "default"
 }
 
 passport.use(
-  new LocalStrategy(async(username, password, done) => {
+  new LocalStrategy(async(email, password, done) => {
     try {
-
+      const user = await prisma.user.findFirst({
+        where: { email }
+      })
+      if(!user) {
+        return done(null, false, { message: "Incorrect email"});
+      }
+      if(password == user.password) {
+        return done(null, false, { message: "Incorrect password"})
+      }
+        return done(null, user)
     } catch (err) {
       return done(err)
     }
-  });
+  })
 );
 
 
 passport.use(
-  new Strategy(opts, async(jwt_payload, done) => {
+  new JwtStrategy(opts, async(jwt_payload, done) => {
     try {
-
+      const user = await prisma.user.findFirst({
+        where: { id: jwt_payload.id}
+      });
+      if(user) {
+        return done(null, user)
+      } else {
+        return done(null, false)
+      }
     } catch(err) {
       return done(err, false)
     }
-  });
+  })
 );
