@@ -1,4 +1,5 @@
 import * as Form from "@radix-ui/react-form";
+import { Link } from "react-router";
 
 export const Login = () => {
   return (
@@ -54,9 +55,11 @@ export const Login = () => {
           </Form.Control>
         </Form.Field>
         <Form.Submit asChild>
-          <button className="mt-2.5 bg-dark-mauve-1000 text-white box-border inline-flex h-[35px] w-full items-center justify-center rounded px-[15px] font-medium leading-none text-violet11  hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
-            Login
-          </button>
+          <Link to="/dashboard">
+            <button className="mt-2.5 bg-dark-mauve-1000 text-white box-border inline-flex h-[35px] w-full items-center justify-center rounded px-[15px] font-medium leading-none text-violet11  hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
+              Login
+            </button>
+          </Link>
         </Form.Submit>
       </Form.Root>
    </>

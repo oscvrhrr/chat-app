@@ -1,5 +1,6 @@
 import { Button } from "@radix-ui/themes"
 import { ChatBubbleIcon, MagnifyingGlassIcon, ExitIcon, GearIcon, GlobeIcon } from "@radix-ui/react-icons"
+import { Link } from "react-router"
 
 export const Sidebar = () => {
   return (
@@ -19,9 +20,11 @@ export const Sidebar = () => {
         <Button className="hover:bg-dark-mauve-600 text-dark-mauve-1100 my-1" variant="ghost" size="3">
           <GearIcon/>Settings
         </Button>
+        <Link to="/">
         <Button className="hover:bg-dark-mauve-600 text-dark-mauve-1100" variant="ghost" size="3">
           <ExitIcon/>Logout
         </Button>  
+        </Link>
       </div>
     </div>
   )
