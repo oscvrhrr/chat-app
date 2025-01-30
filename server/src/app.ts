@@ -2,8 +2,8 @@ import express, { Express } from "express";
 import { config } from "dotenv";
 import  cors  from "cors";
 import passport from "passport";
-import { sign } from "jsonwebtoken";
 import prisma from "./db/prismaClient.js";
+import authRouter from "./routes/authRouter.js";
 
 const app: Express = express()
 
@@ -16,15 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 
-// app.post("/auth/signup", passport. (req, res) => {
+app.use("/auth", authRouter);
 
+
+// app.post("/auth", passport.authenticate("local", { session: false }), (req, res) => {
+//   // const token = sign({})
+//   console.log("this is the login route")
 // });
-
-
-app.post("/auth/login", passport.authenticate("local", { session: false }), (req, res) => {
-  // const token = sign({})
-  console.log("this is the login route")
-});
 
 
 
