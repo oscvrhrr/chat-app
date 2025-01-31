@@ -1,9 +1,9 @@
-import passport from "passport"
-import bcrypt from "bcryptjs"
-import prisma from "../db/prismaClient.js"
-import { Strategy as LocalStrategy } from "passport-local"
-import { Strategy as JwtStrategy } from "passport-jwt"
-import { ExtractJwt } from "passport-jwt"
+import passport from "passport";
+import bcrypt from "bcryptjs";
+import prisma from "../db/prismaClient.js";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as JwtStrategy } from "passport-jwt";
+import { ExtractJwt } from "passport-jwt";
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -11,7 +11,7 @@ const opts = {
 }
 
 passport.use(
-  new LocalStrategy(async(email, password, done) => {
+  new LocalStrategy({ usernameField: "email"}, async(email, password, done) => {
     try {
       const user = await prisma.user.findFirst({
         where: { email }
@@ -19,7 +19,7 @@ passport.use(
       if(!user) {
         return done(null, false, { message: "Incorrect email" });
       }
-      if(password == user.password) {
+      if(password !== user.password) {
         return done(null, false, { message: "Incorrect password" })
       }
         return done(null, user)

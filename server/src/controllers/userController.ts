@@ -1,12 +1,13 @@
 import { UserRepository } from "../db/queries/users.js";
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 
 
 
 
-export const  signup =  async(req: Request, res: Response, next:NextFunction ): Promise<void> => {
+
+export const  signup =  async(req: Request, res: Response, next: NextFunction ): Promise<void> => {
   try {
     const { fullname, email, password } = req.body;
     const newUser = await UserRepository.createUser(fullname, email, password);
@@ -26,7 +27,15 @@ export const  signup =  async(req: Request, res: Response, next:NextFunction ): 
   }
 }
 
+export const login = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if(req.user && jwtSecret) {
+    const token = jwt.sign({ id: req.user.id }, jwtSecret, { expiresIn: "2hr" });
+    res.status(200).json({ token });
+  }
+}
 
-export default { signup }
+
+export default { signup, login }
 
 
