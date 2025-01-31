@@ -1,6 +1,5 @@
 import { Sidebar } from "../components/Sidebar"
 import { Menu } from "../components/Menu"
-
 import { ChatRoom } from "../components/ChatRoom"
 
 export const Dashboard = () => {
@@ -9,7 +8,6 @@ export const Dashboard = () => {
     <Sidebar/>
     <Menu/>
     <ChatRoom/>
-
    </div>
   )
 }
