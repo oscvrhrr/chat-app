@@ -1,12 +1,14 @@
 import express, { Express } from "express";
+import { Server } from "socket.io";
+import { createServer } from "node:http";
 import { config } from "dotenv";
 import  cors  from "cors";
-import passport from "passport";
-import prisma from "./db/prismaClient.js";
 import authRouter from "./routes/authRouter.js";
 import baserUrl from "./config/config.js";
 
-const app: Express = express()
+const app: Express = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: baserUrl }})
 
 
 
@@ -21,19 +23,17 @@ app.use(cors({ origin: baserUrl }));
 app.use("/auth", authRouter);
 
 
-// app.post("/auth", passport.authenticate("local", { session: false }), (req, res) => {
-//   // const token = sign({})
-//   console.log("this is the login route")
-// });
+
+
+io.on("connection", (socket) => {
+  socket.emit('newClientConnected', {message: 'a new client connected'})
+
+  
+})
 
 
 
 
-
-
-
-
-
-app.listen(4001, () => {
+httpServer.listen(4001, () => {
   console.log("app running on port 4001")
 });
