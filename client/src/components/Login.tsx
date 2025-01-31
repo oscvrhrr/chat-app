@@ -2,6 +2,8 @@ import * as Form from "@radix-ui/react-form";
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import baseURL from "../config/config";
+
 
 export const Login = () => {
   const [inputValues, setInputValues] = useState({fullname: "", email: "", password: ""});
@@ -15,21 +17,25 @@ export const Login = () => {
 
   const login = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await axios({
-      method: "POST",
-      url: "http://localhost:4001/auth/login",
-      data: {
-        email: inputValues.email,
-        password: inputValues.password
-      },
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-    localStorage.setItem("token", response.data.token)
-    navigate("/dashboard")
+    try {
+      const response = await axios({
+        method: "POST",
+        url: `${baseURL}/auth/login`,
+        data: {
+          email: inputValues.email,
+          password: inputValues.password
+        },
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      localStorage.setItem("token", response.data.token)
+      navigate("/dashboard")
+    } catch (err) {
+      console.log(err)
+    }
+   
   }
-
 
 
 

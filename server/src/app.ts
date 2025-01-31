@@ -4,6 +4,7 @@ import  cors  from "cors";
 import passport from "passport";
 import prisma from "./db/prismaClient.js";
 import authRouter from "./routes/authRouter.js";
+import baserUrl from "./config/config.js";
 
 const app: Express = express()
 
@@ -13,7 +14,8 @@ const app: Express = express()
 config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({ origin: baserUrl }));
+
 
 
 app.use("/auth", authRouter);
