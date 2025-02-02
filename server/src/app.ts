@@ -24,12 +24,16 @@ app.use("/auth", authRouter);
 
 
 
-
 io.on("connection", (socket) => {
-  socket.emit('newClientConnected', {message: 'a new client connected'})
+  console.log("server recieved connection", socket.id)
 
-  
+  socket.on("disconnect", () => {
+    console.log("server disconnected")
+    io.emit("server disconnected", socket.id)
+  })
+
 })
+
 
 
 
