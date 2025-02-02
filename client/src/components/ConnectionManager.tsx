@@ -11,7 +11,7 @@ export function ConnectionManager() {
 
   return (
     <>
-      <button className='border bg-green-900 absolute left-40' onClick={ connect }>Connect</button>
+      <button className='border bg-green-900 absolute left-64' onClick={ connect }>Connect</button>
       <button className='border bg-red-900 absolute' onClick={ disconnect }>Disconnect</button>
     </>
   );

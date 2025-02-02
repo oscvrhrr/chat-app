@@ -35,7 +35,14 @@ export const login = async(req: Request, res: Response, next: NextFunction): Pro
   }
 }
 
+export const getUsers = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const users = await UserRepository.getAllUsers();
+  if(users) {
+    res.status(200).json({ users })
+  }
+}
 
-export default { signup, login }
+
+export default { signup, login, getUsers }
 
 

@@ -1,5 +1,4 @@
 import passport from "passport";
-import bcrypt from "bcryptjs";
 import prisma from "../db/prismaClient.js";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy } from "passport-jwt";

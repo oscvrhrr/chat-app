@@ -4,7 +4,9 @@ import { createServer } from "node:http";
 import { config } from "dotenv";
 import  cors  from "cors";
 import authRouter from "./routes/authRouter.js";
+import usersRouter from "./routes/usersRouter.js";
 import baserUrl from "./config/config.js";
+import passport from "./auth/passportConfig.js"
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -21,6 +23,7 @@ app.use(cors({ origin: baserUrl }));
 
 
 app.use("/auth", authRouter);
+app.use("/users", passport.authenticate("jwt", { session: false }), usersRouter);
 
 
 
