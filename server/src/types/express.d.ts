@@ -5,6 +5,7 @@ declare global {
       id: number;
       fullname: string | null;
       email: string;
+      password: string;
     }
   }
 }

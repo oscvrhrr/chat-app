@@ -18,6 +18,7 @@ interface UserContextProviderProps {
 
 export const UserContextProvider = ({ children }: UserContextProviderProps) => {
   const [user, setUser] = useState<IUser | null>(null);
+  
   return (
     <UserContext.Provider value={{ user, setUser }}>
       { children }

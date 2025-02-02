@@ -35,6 +35,15 @@ export const login = async(req: Request, res: Response, next: NextFunction): Pro
   }
 }
 
+export const getMe = (req: Request, res: Response, next: NextFunction) => {
+  const data = req.user
+  if(data !== undefined) {
+    const { password, ...rest } = data;
+    res.status(200).json({ user: rest })
+  }
+
+}
+
 export const getUsers = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   const users = await UserRepository.getAllUsers();
   if(users) {
@@ -43,6 +52,6 @@ export const getUsers = async(req: Request, res: Response, next: NextFunction): 
 }
 
 
-export default { signup, login, getUsers }
+export default { signup, login, getUsers, getMe }
 
 

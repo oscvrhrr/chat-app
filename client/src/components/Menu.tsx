@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import axios from "axios";
 import baseURL from "../config/config";
 import IUser from "../types/user";
 import UserCard from "./UserCard";
+import { UserContext } from "./context/UserContext";
 
 export const Menu = () => {
   const [users, setUsers] = useState<IUser[]>([]);
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     const getAllUsers = async() => {
@@ -17,10 +19,12 @@ export const Menu = () => {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       });
-      setUsers(response.data.users)
+      const output = response.data.users.filter((fetchedUser: IUser) => user?.id !== fetchedUser.id)
+      setUsers(output)
     }
+
     getAllUsers()
-  }, [])
+  }, [user?.id])
 
 
 
