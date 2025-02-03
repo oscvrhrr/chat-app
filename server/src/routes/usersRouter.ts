@@ -1,11 +1,15 @@
 import { Router } from "express";
-import { getUsers } from "../controllers/userController.js";
+import { getUsers, getProfiles, getProfileByID } from "../controllers/userController.js";
 
 
 const usersRouter = Router();
 
 
 usersRouter.get("/", getUsers);
+
+usersRouter.get("/profiles", getProfiles);
+
+usersRouter.get("/:userid/profile", getProfileByID)
 
 
 

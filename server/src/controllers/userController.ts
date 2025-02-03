@@ -1,6 +1,7 @@
 import { UserRepository } from "../db/queries/users.js";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { use } from "passport";
 
 
 
@@ -51,7 +52,18 @@ export const getUsers = async(req: Request, res: Response, next: NextFunction): 
   }
 }
 
+export const getProfiles = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const profiles = await UserRepository.getAllProfiles();
+  res.status(200).json({ profiles })
+}
 
-export default { signup, login, getUsers, getMe }
+export const getProfileByID = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { userid } =  req.params;
+  const profile = await UserRepository.getProfileByID(Number(userid))
+  res.status(200).json({ profile })
+}
+
+
+export default { signup, login, getUsers, getMe, getProfiles, getProfileByID }
 
 

@@ -28,6 +28,19 @@ export const UserRepository = {
     return users;
   },
 
+  async getAllProfiles() {
+    const profiles = await prisma.profile.findMany()
+    return profiles
+  },
+
+  async getProfileByID(id: number) {
+    const profile = await prisma.profile.findUnique({
+      where: {
+        userId: id
+      }
+    });
+    return profile
+  },
 
 
 
