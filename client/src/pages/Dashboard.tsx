@@ -2,41 +2,59 @@ import { Sidebar } from "../components/Sidebar"
 import { Menu } from "../components/Menu"
 import { ChatRoom } from "../components/ChatRoom"
 import { useState, useEffect, useContext } from "react"
-import { socket } from "../socket"
-import { ConnectionState } from "../components/ConnectionState"
-import { ConnectionManager } from "../components/ConnectionManager"
 import { UserContext } from "../components/context/UserContext"
 import { ProfileContext } from "../components/context/ProfileContext"
 import axios from "axios"
 import baseURL from "../config/config"
+import IUser from "../types/user"
+import IProfile from "../types/profile"
 
 
 
 export const Dashboard = () => {
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [profiles, setProfiles] = useState<IProfile[]>([])
+  const[recipient, setRecipient] = useState<{ id: number | undefined , fullname: string , email: string, avatar: string | undefined }>({ id: undefined , fullname: "" , email: "", avatar: undefined });
+  
   const { user, setUser } = useContext(UserContext);
   const { setProfile } = useContext(ProfileContext);
-  
-
 
   useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
+    const getAllProfiles = async() => {
+      const response = await axios({
+        method: "GET",
+        url: `${baseURL}/users/profiles`,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      
+      setProfiles(response.data.profiles)
+
+      
     }
-    
-    function onDisconnect() {
-      setIsConnected(false);
+    getAllProfiles()
+  }, [])
+
+  useEffect(() => {
+    const getAllUsers = async() => {
+      const response = await axios({
+        method: "GET",
+        url: `${baseURL}/users`,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      const output = response.data.users.filter((fetchedUser: IUser) => user?.id !== fetchedUser.id)
+      setUsers(output)
     }
 
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off('disconnect', onDisconnect);
-    }
-  }, []);
+    getAllUsers()
+  }, [user?.id])
+  
+ 
 
   useEffect(() => {
     const getCurrentUserData = async() => {
@@ -71,14 +89,11 @@ export const Dashboard = () => {
   }, [setProfile, user?.id])
 
 
-
   return (
    <div className="bg-dark-mauve-200 h-screen flex">
-    <Sidebar/>
-    <Menu/>
-    <ChatRoom/>
-    <ConnectionState isConnected={ isConnected }/>
-    <ConnectionManager/>
+    <Sidebar user={ user }/>
+    <Menu setRecipient={ setRecipient } users={ users } profiles={ profiles }/>
+    <ChatRoom recipient={ recipient } users={ users } profiles={ profiles } />
    </div>
   )
 }

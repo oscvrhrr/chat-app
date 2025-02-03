@@ -1,50 +1,23 @@
-import { useState, useEffect, useContext } from "react"
-import axios from "axios";
-import baseURL from "../config/config";
-import IUser from "../types/user";
+// import { useState, useEffect, useContext } from "react"
+// import axios from "axios";
+// import baseURL from "../config/config";
+// import IUser from "../types/user";
 import IProfile from "../types/profile";
+import IUser from "../types/user";
 import UserCard from "./UserCard";
-import { UserContext } from "./context/UserContext";
+// import { UserContext } from "./context/UserContext";
 
-export const Menu = () => {
-  const [users, setUsers] = useState<IUser[]>([]);
-  const [profiles, setProfiles] = useState<IProfile[]>([])
-  const { user } = useContext(UserContext);
+interface MenuProps {
+  users: IUser[];
+  profiles: IProfile[];
+  setRecipient: React.Dispatch<React.SetStateAction<{ id: number | undefined , fullname: string , email: string, avatar: string | undefined}>> ;
+}
 
-  useEffect(() => {
-    const getAllUsers = async() => {
-      const response = await axios({
-        method: "GET",
-        url: `${baseURL}/users`,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      const output = response.data.users.filter((fetchedUser: IUser) => user?.id !== fetchedUser.id)
-      setUsers(output)
-    }
+export const Menu = ({ users, profiles, setRecipient }: MenuProps) => {
 
-    getAllUsers()
-  }, [user?.id])
-
-  useEffect(() => {
-    const getAllProfiles = async() => {
-      const response = await axios({
-        method: "GET",
-        url: `${baseURL}/users/profiles`,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      
-      setProfiles(response.data.profiles)
-
-      
-    }
-    getAllProfiles()
-  }, [])
+  const handleUserCard = (user: IUser, avatar: string | undefined) => {
+    setRecipient({ id: user.id, fullname: user.fullname, email: user.email, avatar: avatar })
+  }
 
 
   const profileMap = profiles.reduce((map, profile) => {
@@ -70,10 +43,10 @@ export const Menu = () => {
           {/* )) : null */}
         {/* }} */} 
 
-        {users.map((user, index) => {
-        const profile = profileMap[user.id];
+        { users && users.map((user, index) => {
+        const profile = user.id ? profileMap[user.id] : undefined;
         return (
-          <UserCard key={index} avatar={profile?.avatar}>
+          <UserCard handleRecipient={ () => handleUserCard(user, profile?.avatar) } key={index} avatar={profile?.avatar}>
             <p className="pl-2">{user.fullname}</p>
             {/* <p>{ user.email }</p> */}
           </UserCard>

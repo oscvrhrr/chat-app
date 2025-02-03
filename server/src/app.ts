@@ -2,12 +2,12 @@ import express, { Express } from "express";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 import { config } from "dotenv";
+import passport from "./auth/passportConfig.js"
 import  cors  from "cors";
+import baserUrl from "./config/config.js";
 import authRouter from "./routes/authRouter.js";
 import usersRouter from "./routes/usersRouter.js";
-import baserUrl from "./config/config.js";
-import passport from "./auth/passportConfig.js"
-import { seed } from "./utils/createUsers.js";
+import conversationRouter from "./routes/conversationRouter.js";
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -25,13 +25,16 @@ app.use(cors({ origin: baserUrl }));
 
 app.use("/auth", authRouter);
 app.use("/users", passport.authenticate("jwt", { session: false }), usersRouter);
+app.use("/conversations", passport.authenticate("jwt", { session: false}), conversationRouter)
 
 
 
 
 
 io.on("connection", (socket) => {
-  console.log("server recieved connection", socket.id)
+  socket.on("message", (message) => {
+    console.log(message);
+  })
 
   socket.on("disconnect", () => {
     console.log("server disconnected")

@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { socket } from '../socket';
+import { useEffect } from 'react';
+
+
 
 export const Chatbar = () => {
   const [message, setMessage] = useState('');
@@ -11,11 +15,27 @@ export const Chatbar = () => {
     }
   };
 
+  useEffect(() => {
+
+    socket.on("connect", () => {
+      console.log("connected")
+      socket.emit("message", "we sent the message from the client")
+
+
+    });
+
+  }, [])
+
+
+
+
   return (
     <form 
       className="bg-dark-mauve-500 p-2 flex h-12 backdrop-blur-md"
       onSubmit={handleSubmit}
     >
+     
+
       <input
         className="border-none p-2 flex-grow rounded-full mx-1"
         type="text"

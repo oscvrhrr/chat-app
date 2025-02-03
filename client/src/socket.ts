@@ -7,16 +7,6 @@ export const socket = io(URL, {
   autoConnect: false
 });
 
-socket.on("connect", () => {
-  console.log("Connected to the server with socket id:", socket.id);
-});
-
-socket.on("disconnect", () => {
-  console.log("disconnected to the server with socket id:");
-
-})
-
-
 
 
 
