@@ -3,7 +3,7 @@ import { ChatBubbleIcon, MagnifyingGlassIcon, ExitIcon, GearIcon, GlobeIcon } fr
 import * as Avatar from "@radix-ui/react-avatar"
 import { useNavigate } from "react-router"
 import { ProfileContext } from "./context/ProfileContext"
-import { useContext, useState } from "react"
+import { useContext } from "react"
 
 
 export const Sidebar = () => {
