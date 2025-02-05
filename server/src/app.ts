@@ -39,11 +39,12 @@ io.on("connection", (socket) => {
     console.log(`User registerd: ${userId} to: ${socket.id}`);
   })
 
-  socket.on("private-message", ({message, to}) => {
-    const recipientSocketId = userSocketMap.get(to);
+  socket.on("private-message", ({message, sender, recipient}) => {
+    const recipientSocketId = userSocketMap.get(recipient);
+    const senderSocketId = userSocketMap.get(sender);
     if(recipientSocketId) {
-      console.log(`Sending message: ${message} to: ${recipientSocketId}`);
-      socket.to(recipientSocketId).emit("private-message", { message, from: socket.id});
+      console.log(`Sending message: ${message} to: ${recipientSocketId} sender: ${socket.id}`);
+      socket.to(recipientSocketId).emit("private-message", { message, sender });
     }
 
   })
