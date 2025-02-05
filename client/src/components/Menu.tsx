@@ -6,6 +6,7 @@ import IProfile from "../types/profile";
 import IUser from "../types/user";
 import UserCard from "./UserCard";
 // import { UserContext } from "./context/UserContext";
+import { useEffect } from "react";
 
 interface MenuProps {
   users: IUser[];
@@ -18,6 +19,20 @@ export const Menu = ({ users, profiles, setRecipient }: MenuProps) => {
   const handleUserCard = (user: IUser, avatar: string | undefined) => {
     setRecipient({ id: user.id, fullname: user.fullname, email: user.email, avatar: avatar })
   }
+
+  useEffect(() => {
+    if (users && users.length > 0) {
+      // For example, pick the first user as the default recipient
+      const firstUser = users[0];
+      const profile = profiles.find(p => p.id === firstUser.id);
+      setRecipient({
+        id: firstUser.id,
+        fullname: firstUser.fullname,
+        email: firstUser.email,
+        avatar: profile?.avatar,
+      });
+    }
+  }, [users, profiles, setRecipient]);
 
 
   const profileMap = profiles.reduce((map, profile) => {

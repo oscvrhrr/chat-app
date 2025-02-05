@@ -1,34 +1,65 @@
+import * as Avatar from "@radix-ui/react-avatar"
 import { Chatbar } from "./Chatbar"
 import IUser from "../types/user";
 import IProfile from "../types/profile";
-import * as Avatar from "@radix-ui/react-avatar"
+import IRecipient from "../types/recipient";
+import IConversation from "../types/conversation";
 import { useState, useEffect } from "react";
 import { socket } from "../socket";
 import { useContext } from "react";
 import { UserContext } from "./context/UserContext";
+import axios from "axios";
+import baseURL from "../config/config";
+import Conversation from "./Conversation";
 
 
 interface ChatRoomProps {
   users: IUser[];
   profiles: IProfile[];
-  recipient: { id: number | undefined , fullname: string , email: string, avatar: string | undefined };
+  recipient: IRecipient;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const ChatRoom = ({ users, profiles, recipient }: ChatRoomProps) => {
+
+export const ChatRoom = ({ profiles, recipient }: ChatRoomProps) => {
   const { user } = useContext(UserContext);
   const [messages, setMessages] = useState<{ message: string, from: string }[]>([]);
+  const [conversation, setConversation] = useState<IConversation[]>([])
+
+  useEffect(() => {
+    setConversation([]);
+    setMessages([]);
+
+    if(recipient && recipient.id) {
+      const getMessagesFromDB = async() => {
+        const response = await axios({
+          method: "GET",
+          url: `${baseURL}/conversations/messages`,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          },
+          params: {
+            recipientId: recipient.id
+          }
+        })
+        setConversation(response.data.messages)
+      }
+      getMessagesFromDB()
+    }
+
+  }, [recipient]);
   
   useEffect(() => {
 
     socket.on("connect", () => {
       console.log(`Connected with socket ID: ${socket.id}`);
-      socket.emit("register", user?.id )
+      socket.emit("register", user?.id)
     });
   
-    socket.on("private-message", ({ message, from }) => {
-      console.log(`Received message: ${message} from: ${from}`);
-      setMessages((prevMessages) => [...prevMessages, { message, from }])
+    socket.on("private-message", ({ message, sender }) => {
+      console.log(`Received message: ${message} from: ${sender}`);
+      setConversation((prev) => [...prev, { id: 1, message, created: new Date().toISOString(), userId: sender.id, conversationId: 1 }])
+      // setMessages((prevMessages) => [...prevMessages, { message, from }])
 
     })
 
@@ -41,8 +72,8 @@ export const ChatRoom = ({ users, profiles, recipient }: ChatRoomProps) => {
 
 
   return (
-    <div className="h-screen flex-1 bg-dark-mauve-200 flex flex-col justify-between">
-      <div className="w-full text-2xl p-2 bg-dark-mauve-500 flex items-center">
+    <div className="flex-1 bg-dark-mauve-200 flex flex-col h-screen overflow-y-auto">
+      <div className="w-full text-2xl p-2 bg-dark-mauve-500 flex items-center fixed">
         <Avatar.Root className="inline-flex mr-2 size-[45px] select-none items-center justify-center overflow-hidden rounded-full bg-blackA1 align-middle">
         <Avatar.Image
           className="size-full rounded-[inherit] object-cover"
@@ -59,13 +90,14 @@ export const ChatRoom = ({ users, profiles, recipient }: ChatRoomProps) => {
       <h3 className="bold mr-4">{recipient.fullname}</h3>
       </div>
       <div>
-      {messages.map((msg, index) => (
-          <div key={index}>
-            <strong>{msg.from}:</strong> {msg.message}
-          </div>
-        ))}
+        <Conversation profiles={profiles} recipient={recipient} conversation={ conversation }/>
+        {messages.map((msg, index) => (
+            <div key={index}>
+              <strong>{msg.from}:</strong> {msg.message}
+            </div>
+          ))}
       </div>
-      <Chatbar recipientId={ recipient.id }/>
+      <Chatbar setConversation={setConversation} recipientId={ recipient.id }/>
     </div>
   )
 }

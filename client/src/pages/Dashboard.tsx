@@ -29,7 +29,6 @@ export const Dashboard = () => {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       });
-      
       setProfiles(response.data.profiles)
 
       
