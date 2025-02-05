@@ -7,7 +7,7 @@ import  cors  from "cors";
 import baserUrl from "./config/config.js";
 import authRouter from "./routes/authRouter.js";
 import usersRouter from "./routes/usersRouter.js";
-import conversationRouter from "./routes/conversationRouter.js";
+import conversationsRouter from "./routes/conversationsRouter.js";
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -25,19 +25,33 @@ app.use(cors({ origin: baserUrl }));
 
 app.use("/auth", authRouter);
 app.use("/users", passport.authenticate("jwt", { session: false }), usersRouter);
-app.use("/conversations", passport.authenticate("jwt", { session: false}), conversationRouter)
+app.use("/conversations", passport.authenticate("jwt", { session: false}), conversationsRouter)
 
 
 
-
+const userSocketMap = new Map();
 
 io.on("connection", (socket) => {
-  socket.on("message", (message) => {
-    console.log(message);
+  console.log(`user connected: ${socket.id}`)
+
+  socket.on("register", (userId) => {
+    userSocketMap.set(userId, socket.id);
+    console.log(`User registerd: ${userId} to: ${socket.id}`);
   })
 
+  socket.on("private-message", ({message, to}) => {
+    const recipientSocketId = userSocketMap.get(to);
+    if(recipientSocketId) {
+      console.log(`Sending message: ${message} to: ${recipientSocketId}`);
+      socket.to(recipientSocketId).emit("private-message", { message, from: socket.id});
+    }
+
+  })
+
+
+
   socket.on("disconnect", () => {
-    console.log("server disconnected")
+    console.log(`User disconnected: ${socket.id}`)
     io.emit("server disconnected", socket.id)
   })
 

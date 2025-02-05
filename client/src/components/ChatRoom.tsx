@@ -2,6 +2,11 @@ import { Chatbar } from "./Chatbar"
 import IUser from "../types/user";
 import IProfile from "../types/profile";
 import * as Avatar from "@radix-ui/react-avatar"
+import { useState, useEffect } from "react";
+import { socket } from "../socket";
+import { useContext } from "react";
+import { UserContext } from "./context/UserContext";
+
 
 interface ChatRoomProps {
   users: IUser[];
@@ -9,10 +14,30 @@ interface ChatRoomProps {
   recipient: { id: number | undefined , fullname: string , email: string, avatar: string | undefined };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const ChatRoom = ({ users, profiles, recipient }: ChatRoomProps) => {
-
+  const { user } = useContext(UserContext);
+  const [messages, setMessages] = useState<{ message: string, from: string }[]>([]);
   
+  useEffect(() => {
 
+    socket.on("connect", () => {
+      console.log(`Connected with socket ID: ${socket.id}`);
+      socket.emit("register", user?.id )
+    });
+  
+    socket.on("private-message", ({ message, from }) => {
+      console.log(`Received message: ${message} from: ${from}`);
+      setMessages((prevMessages) => [...prevMessages, { message, from }])
+
+    })
+
+    return () => {
+      socket.off('connect');
+      socket.off('private-message');
+    };
+
+  }, [user])
 
 
   return (
@@ -33,7 +58,14 @@ export const ChatRoom = ({ users, profiles, recipient }: ChatRoomProps) => {
         </Avatar.Root>
       <h3 className="bold mr-4">{recipient.fullname}</h3>
       </div>
-      <Chatbar/>
+      <div>
+      {messages.map((msg, index) => (
+          <div key={index}>
+            <strong>{msg.from}:</strong> {msg.message}
+          </div>
+        ))}
+      </div>
+      <Chatbar recipientId={ recipient.id }/>
     </div>
   )
 }

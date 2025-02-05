@@ -33,7 +33,7 @@ model Profile {
 model Conversations {
   id Int @id @default(autoincrement())
   name String
-  date_created DateTime
+  date_created DateTime @default(now())
   messages Messages[]
   conversationparticipants ConversationParticipants[]
 }
@@ -41,7 +41,7 @@ model Conversations {
 model Messages {
   id Int @id @default(autoincrement())
   message String
-  time_created DateTime
+  time_created DateTime @default(now())
   userId Int 
   conversationId Int
   user User @relation(fields: [userId], references: [id])

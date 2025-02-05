@@ -1,30 +1,41 @@
 import React, { useState } from 'react';
 import { socket } from '../socket';
-import { useEffect } from 'react';
+import baseURL from '../config/config';
+import axios from 'axios';
+
+interface ChatbarProps {
+  recipientId: number | undefined;
+}
 
 
-
-export const Chatbar = () => {
+export const Chatbar = ({ recipientId }: ChatbarProps) => {
   const [message, setMessage] = useState('');
+ 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      console.log(message);
+      socket.emit("private-message", { message, to: recipientId });
+      const saveMessageToDB = async() => {
+        const response = await axios({
+          method: "POST",
+          url: `${baseURL}/conversations`,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+          data: {
+            message,
+            recipientId,
+          }
+        })
+        console.log(response.data);
+      }
+      saveMessageToDB();
       setMessage('');
     }
   };
 
-  useEffect(() => {
-
-    socket.on("connect", () => {
-      console.log("connected")
-      socket.emit("message", "we sent the message from the client")
-
-
-    });
-
-  }, [])
 
 
 
@@ -34,7 +45,7 @@ export const Chatbar = () => {
       className="bg-dark-mauve-500 p-2 flex h-12 backdrop-blur-md"
       onSubmit={handleSubmit}
     >
-     
+    
 
       <input
         className="border-none p-2 flex-grow rounded-full mx-1"
@@ -49,6 +60,7 @@ export const Chatbar = () => {
       >
         Send
       </button>
+      
     </form>
   );
 };
