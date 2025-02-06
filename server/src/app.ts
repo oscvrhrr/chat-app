@@ -62,6 +62,6 @@ io.on("connection", (socket) => {
 
 
 
-httpServer.listen(4001, () => {
-  console.log("app running on port 4001")
+httpServer.listen(Number(process.env.PORT), "0.0.0.0", () => {
+  console.log(`App is running on port ${process.env.PORT}`)
 });
