@@ -4,9 +4,11 @@
   "main": "app.ts",
   "type": "module",
   "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "npx tsx --watch src/app",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc",
-    "dev": "npx tsx --watch src/app"
+    "tsc": "tsc"
   },
   "keywords": [],
   "author": "",
