@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import baseURL from "../config/config";
+import useDemo from "../hooks/useDemo";
 
 interface AuthFormProps {
   title: string;
@@ -14,6 +15,7 @@ interface AuthFormProps {
 export const AuthForm = ({ title, segment, toggle }: AuthFormProps) => {
   const [inputValues, setInputValues] = useState({fullname: "", email: "", password: ""});
   const navigate = useNavigate();
+  const { loginDemo } = useDemo();
 
   const handleInputValues = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -141,6 +143,11 @@ export const AuthForm = ({ title, segment, toggle }: AuthFormProps) => {
             {title}
           </button>
         </Form.Submit>
+       { title === "Login" &&
+        ( <button onClick={loginDemo} className="mt-5 bg-green-700 text-white box-border inline-flex h-[35px] w-full items-center justify-center rounded px-[15px] font-medium leading-none text-violet11  hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
+          Login with demo account
+      </button>)
+       }
       </Form.Root>
       <p className="cursor-pointer" onClick={toggle}>
         { title === 'Sign Up' ? "Already have an account? Login here!" : "Don't have an account? Register here!" }
