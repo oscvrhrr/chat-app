@@ -1,7 +1,7 @@
 import { UserRepository } from "../db/queries/users.js";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { use } from "passport";
+
 
 
 
@@ -47,14 +47,20 @@ export const getMe = (req: Request, res: Response, next: NextFunction) => {
 
 export const getUsers = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   const users = await UserRepository.getAllUsers();
+  const me = req.user
   if(users) {
-    res.status(200).json({ users })
+    const usersWithoutCurrentUser = users.filter((user) => user.id !== me?.id);
+    res.status(200).json({ users: usersWithoutCurrentUser })
   }
 }
 
 export const getProfiles = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   const profiles = await UserRepository.getAllProfiles();
-  res.status(200).json({ profiles })
+  const me = req.user;
+  if(profiles) {
+    const profilesWithoutCurrentUser = profiles.filter((profile) => profile.userId !== me?.id)
+    res.status(200).json({ profiles: profilesWithoutCurrentUser })
+  }
 }
 
 export const getProfileByID = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
