@@ -1,9 +1,12 @@
+import { UserContext } from "../components/context/UserContext"
+import { useState, useEffect, useContext } from "react"
+import { useApi } from "../hooks/useApi"
+import { ProfileContextProvider } from "../components/context/ProfileContext"
 import { Sidebar } from "../components/Sidebar"
 import { Menu } from "../components/Menu"
 import { ChatRoom } from "../components/ChatRoom"
-import { useState, useEffect, useContext } from "react"
-import { UserContext } from "../components/context/UserContext"
-import { ProfileContext } from "../components/context/ProfileContext"
+import SettingsForm from "../components/Settings"
+
 import axios from "axios"
 import baseURL from "../config/config"
 import IUser from "../types/user"
@@ -12,63 +15,13 @@ import IProfile from "../types/profile"
 
 
 export const Dashboard = () => {
-  const [users, setUsers] = useState<IUser[]>([]);
-  const [profiles, setProfiles] = useState<IProfile[]>([])
   const[recipient, setRecipient] = useState<{ id: number | undefined , fullname: string , email: string, avatar: string | undefined }>({ id: undefined , fullname: "" , email: "", avatar: undefined });
-  
-  const { user, setUser } = useContext(UserContext);
-  const { setProfile } = useContext(ProfileContext);
+  const [profile, setProfile] = useState<IProfile>({ id: undefined, userId: undefined, bio: undefined, avatar: undefined});
+  const [isButtonPressed, setIsButtonPressed] = useState<"chats" | "groups" | "search" | "settings">("search");
+  const { data: profilesData } = useApi<IProfile[]>("GET", `${baseURL}/users/profiles`, "profiles");
+  const { data: userData } = useApi<IUser[]>("GET", `${baseURL}/users`, "users");
+  const { user } = useContext(UserContext);
 
-  useEffect(() => {
-    const getAllProfiles = async() => {
-      const response = await axios({
-        method: "GET",
-        url: `${baseURL}/users/profiles`,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      setProfiles(response.data.profiles)
-
-      
-    }
-    getAllProfiles()
-  }, [])
-
-  useEffect(() => {
-    const getAllUsers = async() => {
-      const response = await axios({
-        method: "GET",
-        url: `${baseURL}/users`,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      const output = response.data.users.filter((fetchedUser: IUser) => user?.id !== fetchedUser.id)
-      setUsers(output)
-    }
-
-    getAllUsers()
-  }, [user?.id])
-  
- 
-
-  useEffect(() => {
-    const getCurrentUserData = async() => {
-      const response = await axios({
-        method: "GET",
-        url: `${baseURL}/auth/me`,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      setUser(response.data.user)
-    } 
-    getCurrentUserData()
-  }, [setUser])
 
   useEffect(() => {
     const getUserProfile = async() => {
@@ -83,16 +36,49 @@ export const Dashboard = () => {
       });
       setProfile(response.data.profile)
     }
-    getUserProfile()
+    if (user?.id) {
+      getUserProfile();
+    }
+  }, [user?.id])
 
-  }, [setProfile, user?.id])
 
 
   return (
-   <div className="bg-dark-mauve-200 h-screen flex">
-    <Sidebar user={ user }/>
-    <Menu setRecipient={ setRecipient } users={ users } profiles={ profiles }/>
-    <ChatRoom recipient={ recipient } users={ users } profiles={ profiles } />
-   </div>
-  )
+    <div className="bg-dark-mauve-200 h-screen flex">
+      <ProfileContextProvider value={{ profile, setProfile }}>
+        <Sidebar user={user} setIsButtonPressed={setIsButtonPressed} />
+        {isButtonPressed === "chats" && (
+          <>
+            <Menu
+              setRecipient={setRecipient}
+              users={userData || []}
+              profiles={profilesData || []}
+            />
+            <ChatRoom
+              recipient={recipient}
+              users={userData || []}
+              profiles={profilesData || []}
+            />
+
+          
+          </>
+        )}
+        {isButtonPressed === "search" && (
+          <>
+            <Menu
+              setRecipient={setRecipient}
+              users={userData || []}
+              profiles={profilesData || []}
+            />
+            <ChatRoom
+              recipient={recipient}
+              users={userData || []}
+              profiles={profilesData || []}
+            />
+          </>
+        )}
+        {isButtonPressed === "settings" && <SettingsForm />}
+      </ProfileContextProvider>
+    </div>
+  );
 }

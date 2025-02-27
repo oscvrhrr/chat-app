@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext } from "react";
 import IProfile from "../../types/profile";
 
 
@@ -14,13 +14,16 @@ export const ProfileContext = createContext<IProfileContext>({ profile: undefine
 
 interface IProfileContextProviderProps {
   children: React.ReactNode;
+  value: IProfileContext;
 }
 
-export const ProfileContextProvider = ({ children }: IProfileContextProviderProps) => {
-  const [profile, setProfile] = useState<IProfile>({ id: undefined, userId: undefined, bio: undefined, avatar: undefined});
+export const ProfileContextProvider = ({ children, value }: IProfileContextProviderProps) => {
+  // const [profile, setProfile] = useState<IProfile>({ id: undefined, userId: undefined, bio: undefined, avatar: undefined});
+
+  
 
   return (
-    <ProfileContext.Provider value={{ profile, setProfile }}>
+    <ProfileContext.Provider value={value}>
       { children }
     </ProfileContext.Provider>
   )
