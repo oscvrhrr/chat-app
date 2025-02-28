@@ -2,6 +2,14 @@ import { Request, Response, NextFunction } from "express"
 import ConversationRepository from "../db/queries/conversations.js"
 
 
+export const readConversations = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  if(req.user) {
+    const allConversations = await ConversationRepository.getAllConversaions(req.user?.id)
+    res.status(200).json({conversations: allConversations})
+  }
+}
+
+
 export const createConversation = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { message, recipientId } = req.body;
   if(req.user){

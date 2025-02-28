@@ -1,7 +1,25 @@
 import { send } from "node:process";
 import prisma from "../prismaClient.js";
+import { tr } from "@faker-js/faker";
 
 const ConversationRepository = {
+
+
+  async getAllConversaions (userId: number) {
+    const allConversations = await prisma.conversations.findMany({
+      where: {
+        conversationparticipants: {
+          some: {
+            userId
+          }
+        },
+      },
+      include: {
+        conversationparticipants: true,
+      }
+    })
+    return allConversations
+  },
 
   async findConversationByParticipants (sender: number, recipient: number) {
     const conversation = await prisma.conversations.findFirst({
