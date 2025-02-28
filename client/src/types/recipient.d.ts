@@ -1,8 +1,9 @@
 
 interface IRecipient {
-  id: number | undefined;
+  userId: number | undefined;
   fullname: string;
   email: string;
+  bio?: string | undefined;
   avatar: string | undefined;
 }
 

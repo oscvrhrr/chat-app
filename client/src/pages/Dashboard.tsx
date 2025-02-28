@@ -11,16 +11,19 @@ import axios from "axios"
 import baseURL from "../config/config"
 import IUser from "../types/user"
 import IProfile from "../types/profile"
+import IRecipient from "../types/recipient"
 
 
 
 export const Dashboard = () => {
-  const[recipient, setRecipient] = useState<{ id: number | undefined , fullname: string , email: string, avatar: string | undefined }>({ id: undefined , fullname: "" , email: "", avatar: undefined });
+  const[recipient, setRecipient] = useState<IRecipient>({ userId: undefined , fullname: "" , email: "", bio: "", avatar: undefined });
   const [profile, setProfile] = useState<IProfile>({ id: undefined, userId: undefined, bio: undefined, avatar: undefined});
   const [isButtonPressed, setIsButtonPressed] = useState<"chats" | "groups" | "search" | "settings">("search");
   const { data: profilesData } = useApi<IProfile[]>("GET", `${baseURL}/users/profiles`, "profiles");
   const { data: userData } = useApi<IUser[]>("GET", `${baseURL}/users`, "users");
   const { user } = useContext(UserContext);
+
+  
 
 
   useEffect(() => {
@@ -43,32 +46,18 @@ export const Dashboard = () => {
 
 
 
+
   return (
     <div className="bg-dark-mauve-200 h-screen flex">
       <ProfileContextProvider value={{ profile, setProfile }}>
         <Sidebar user={user} setIsButtonPressed={setIsButtonPressed} />
-        {isButtonPressed === "chats" && (
+        {(isButtonPressed === "chats" || isButtonPressed === "search") && (
           <>
             <Menu
               setRecipient={setRecipient}
               users={userData || []}
               profiles={profilesData || []}
-            />
-            <ChatRoom
-              recipient={recipient}
-              users={userData || []}
-              profiles={profilesData || []}
-            />
-
-          
-          </>
-        )}
-        {isButtonPressed === "search" && (
-          <>
-            <Menu
-              setRecipient={setRecipient}
-              users={userData || []}
-              profiles={profilesData || []}
+              isButtonPressed={isButtonPressed}
             />
             <ChatRoom
               recipient={recipient}

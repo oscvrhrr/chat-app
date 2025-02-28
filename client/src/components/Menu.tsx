@@ -1,69 +1,70 @@
-import { useEffect } from "react";
 import IProfile from "../types/profile";
 import IUser from "../types/user";
+import IRecipient from "../types/recipient";
 import UserCard from "./UserCard";
+import { recipientData } from "../lib/recipientHashMap";
+import { useMemo, useEffect } from "react";
+import { useApi } from "../hooks/useApi";
+import baseURL from "../config/config";
+import { IConversationData } from "../types/conversationData";
+import { getRecipientsInConversations } from "../lib/getRecipientsInConversation";
+import { Heading } from "@radix-ui/themes";
+
 
 interface MenuProps {
   users: IUser[];
   profiles: IProfile[];
-  setRecipient: React.Dispatch<
-    React.SetStateAction<{
-      id: number | undefined;
-      fullname: string;
-      email: string;
-      avatar: string | undefined;
-    }>
-  >;
+  setRecipient: React.Dispatch<React.SetStateAction<IRecipient>>;
+  isButtonPressed: "chats" | "groups" | "search" | "settings";
 }
 
-export const Menu = ({ users, profiles, setRecipient }: MenuProps) => {
+export const Menu = ({ users, profiles, setRecipient, isButtonPressed }: MenuProps) => {
+  const { data: conversationData } = useApi<IConversationData[]>("GET", `${baseURL}/conversations`, "conversations");
+  const recipientArray = useMemo(() => recipientData(users, profiles), [users, profiles]);
+  const filteredArray = useMemo(() => {
+    if (!conversationData) return [];
+    return getRecipientsInConversations(conversationData, recipientArray);
+  }, [conversationData, recipientArray]);
+
   
-  const handleUserCard = (user: IUser, avatar: string | undefined) => {
-    setRecipient({
-      id: user.id,
-      fullname: user.fullname,
-      email: user.email,
-      avatar: avatar,
-    });
-  };
 
   useEffect(() => {
-    if (users && users.length > 0) {
-      // For example, pick the first user as the default recipient
-      const firstUser = users[0];
-      const profile = profiles.find((p) => p.id === firstUser.id);
-      setRecipient({
-        id: firstUser.id,
-        fullname: firstUser.fullname,
-        email: firstUser.email,
-        avatar: profile?.avatar,
-      });
+    if (recipientArray.length > 0) {
+      setRecipient(recipientArray[0]);
     }
-  }, [users, profiles, setRecipient]);
+  }, [recipientArray, setRecipient]);
 
-  const profileMap = profiles.reduce((map, profile) => {
-    if (profile.id) {
-      map[profile.id] = profile;
-    }
-    return map;
-  }, {} as { [key: string]: IProfile });
+  
+ 
 
   return (
     <div className="w-80 rounded text-white bg-dark-mauve-300 p-2 h-screen overflow-y-auto">
-      {users &&
-        users.map((user, index) => {
-          const profile = user.id ? profileMap[user.id] : undefined;
-          return (
-            <UserCard
-              handleRecipient={() => handleUserCard(user, profile?.avatar)}
-              key={index}
-              avatar={profile?.avatar}
-            >
-              <p className="pl-2">{user.fullname}</p>
-              {/* <p>{ user.email }</p> */}
-            </UserCard>
-          );
-        })}
+      <Heading className="mt-2">{isButtonPressed === 'search' ? "Search all users": "Chats"}</Heading>
+      {isButtonPressed === "search" && recipientArray.map((recipient) => (
+        <UserCard
+          key={recipient.userId}
+          avatar={recipient.avatar}
+          handleRecipient={() => {
+            setRecipient(recipient);
+          }}
+        >
+          <p>{recipient.fullname}</p>
+        </UserCard>
+      ))}
+      { isButtonPressed === "chats" && filteredArray.map((recipient) => (
+        <UserCard
+          key={recipient.userId}
+          avatar={recipient.avatar}
+          handleRecipient={() => {
+            setRecipient({
+              ...recipient,
+              avatar: recipient.avatar || ''
+            })
+          }}
+        >
+          <p>{recipient.fullname}</p>
+        </UserCard>
+      ))}
     </div>
   );
 };

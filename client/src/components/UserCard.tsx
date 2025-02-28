@@ -3,7 +3,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 
 interface UserCardProps {
   children: React.ReactNode;
-  key: number;
+  key: number | undefined;
   avatar: string | undefined;
   handleRecipient: () => void ;
 }

@@ -23,13 +23,14 @@ interface ChatRoomProps {
 export const ChatRoom = ({ profiles, recipient }: ChatRoomProps) => {
   const { user } = useContext(UserContext);
   const [messages, setMessages] = useState<{ message: string, from: string }[]>([]);
-  const [conversation, setConversation] = useState<IConversation[]>([])
+  const [conversation, setConversation] = useState<IConversation[]>([]);
+  
 
   useEffect(() => {
     setConversation([]);
     setMessages([]);
 
-    if(recipient && recipient.id) {
+    if(recipient && recipient.userId) {
       const getMessagesFromDB = async() => {
         const response = await axios({
           method: "GET",
@@ -39,7 +40,7 @@ export const ChatRoom = ({ profiles, recipient }: ChatRoomProps) => {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           },
           params: {
-            recipientId: recipient.id
+            recipientId: recipient.userId
           }
         })
         setConversation(response.data.messages)
@@ -97,7 +98,7 @@ export const ChatRoom = ({ profiles, recipient }: ChatRoomProps) => {
             </div>
           ))}
       </div>
-      <Chatbar setConversation={setConversation} recipientId={ recipient.id }/>
+      <Chatbar setConversation={setConversation} recipientId={ recipient.userId }/>
     </div>
   )
 }
